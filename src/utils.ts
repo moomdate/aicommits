@@ -61,15 +61,22 @@ export const getStagedDiff = async () => {
 export const getDetectedMessage = (files: string[]) => `Detected ${files.length.toLocaleString()} staged file${files.length > 1 ? 's' : ''}`;
 
 const sanitizeMessage = (message: string) => message.trim().replace(/[\n\r]/g, '').replace(/(\w)\.$/, '$1');
-
 const promptTemplate = 'Write an insightful but concise Git commit message in a complete sentence in present tense for the following diff without prefacing it with anything:';
 
+const messagePattern=()=>{
+	const p = process.env.PATTERN
+	if (p){
+		return ` and message pattern like this ${p}`
+	}
+	return ``;
+}
 export const generateCommitMessage = async (
 	apiKey: string,
 	diff: string,
 	completions: number,
 ) => {
-	const prompt = `${promptTemplate}\n${diff}`;
+
+	const prompt = `${promptTemplate}\n${messagePattern}\n${diff}`;
 
 	// Accounting for GPT-3's input req of 4k tokens (approx 8k chars)
 	if (prompt.length > 8000) {
